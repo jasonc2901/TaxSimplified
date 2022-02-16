@@ -1,5 +1,6 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tax_simplified/constants.dart';
 
 class MainScreen extends StatefulWidget {
@@ -10,6 +11,32 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  var salaryController = new TextEditingController();
+  final formatCurrency =
+      new NumberFormat.simpleCurrency(locale: 'en_GB', decimalDigits: 0);
+  double netSalary = -1;
+
+  void calculateSalary(String salary) {
+    int parsedGross = int.parse(salary.substring(1).replaceAll(',', ''));
+    var selectedCountry = countryList.where((c) => c.isSelected == true).first;
+    selectedCountry.brackets.forEach((bracket) {
+      if (bracket.range.length > 1) {
+        if (parsedGross >= bracket.range[0] &&
+            parsedGross <= bracket.range[1]) {
+          setState(() {
+            netSalary = parsedGross - (parsedGross * bracket.percentage);
+          });
+        }
+      } else {
+        if (parsedGross >= bracket.range[0]) {
+          setState(() {
+            netSalary = parsedGross - (parsedGross * bracket.percentage);
+          });
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -71,23 +98,54 @@ class _MainScreenState extends State<MainScreen> {
                               padding: const EdgeInsets.all(8.0),
                               child: new InkWell(
                                 onTap: () {
-                                  print("${country.name} selected!");
+                                  setState(() {
+                                    //set all previous countries to not selected
+                                    countryList
+                                        .forEach((c) => c.isSelected = false);
+                                    //set the current country to selected
+                                    country.isSelected = true;
+                                  });
                                 },
                                 child: Column(
                                   children: [
                                     Container(
-                                      height: 80.0,
                                       width: 80.0,
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(50.0),
-                                        child: Image.asset(
-                                          country.imgUrl,
-                                          fit: BoxFit.contain,
+                                      height: 80.0,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xff7c94b6),
+                                        image: DecorationImage(
+                                          image: AssetImage(country.imgUrl),
+                                          fit: BoxFit.cover,
                                         ),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(50.0)),
+                                        border: country.isSelected
+                                            ? Border.all(
+                                                color: darkPurple,
+                                                width: 4.0,
+                                              )
+                                            : null,
                                       ),
                                     ),
-                                    Text("${country.name}")
+                                    Container(
+                                      padding: EdgeInsets.all(5.0),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(25.0),
+                                        ),
+                                        color: country.isSelected
+                                            ? darkPurple
+                                            : Colors.white,
+                                      ),
+                                      child: Text(
+                                        "${country.name}",
+                                        style: TextStyle(
+                                          color: country.isSelected
+                                              ? Colors.white
+                                              : greyColor,
+                                        ),
+                                      ),
+                                    )
                                   ],
                                 ),
                               ),
@@ -117,16 +175,18 @@ class _MainScreenState extends State<MainScreen> {
                       width: width * 0.45,
                       child: new TextField(
                           style: TextStyle(
-                            color: darkPurple,
+                            color: greyColor,
                             fontSize: 22.0,
+                            fontWeight: FontWeight.w600,
                           ),
+                          controller: salaryController,
                           cursorColor: darkPurple,
                           decoration: InputDecoration(
                             enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: lightPurple),
+                              borderSide: BorderSide(color: greyColor),
                             ),
                             focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: darkPurple),
+                              borderSide: BorderSide(color: greyColor),
                             ),
                           ),
                           inputFormatters: [
@@ -156,8 +216,7 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ),
                         onPressed: () => {
-                          //calculate the current salary after tax
-                          print("calculating salary ...")
+                          calculateSalary(salaryController.text),
                         },
                         style: ButtonStyle(
                           backgroundColor:
@@ -181,7 +240,75 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ],
               ),
-            )
+            ),
+            SizedBox(
+              height: height * 0.03,
+            ),
+            netSalary > -1
+                ? Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Your yearly salary after tax is',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 26.0,
+                          ),
+                        ),
+                        Text(
+                          '${formatCurrency.format(netSalary)}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 46.0,
+                          ),
+                        ),
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                bottom: height * 0.05, top: height * 0.05),
+                            child: ElevatedButton(
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Text(
+                                  'Full Breakdown',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                  ),
+                                ),
+                              ),
+                              onPressed: () => {
+                                print('go to summary'),
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        orangeColor),
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                shadowColor: MaterialStateProperty.all<Color>(
+                                    Colors.transparent),
+                                overlayColor: MaterialStateProperty.all<Color>(
+                                    Colors.transparent),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25.0),
+                                    side: BorderSide(color: orangeColor),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
+            Spacer()
           ],
         ),
       ),
