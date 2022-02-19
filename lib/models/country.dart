@@ -1,4 +1,4 @@
-import 'package:tax_simplified/classes/tax_bracket.dart';
+import 'package:tax_simplified/models/tax_bracket.dart';
 
 class Country {
   String name;

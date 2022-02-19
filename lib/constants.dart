@@ -1,13 +1,18 @@
 import 'package:flutter/painting.dart';
-import 'package:tax_simplified/classes/tax_bracket.dart';
-import 'classes/country.dart';
+import 'package:intl/intl.dart';
+import 'package:tax_simplified/models/breakdown_methods.dart';
+import 'package:tax_simplified/models/breakdown_percentage.dart';
+import 'package:tax_simplified/models/tax_bracket.dart';
+import 'package:tax_simplified/models/country.dart';
 
+//all reused colours within the app
 const Color lightPurple = Color(0xFF6651D9);
 const Color darkPurple = Color(0xFF5241C5);
 const Color orangeColor = Color(0xFFFF7518);
 const Color greyColor = Color(0xFF6D6A6A);
 const String apptitle = "Tax Simplified";
 
+//list of available countries and associated tax brackets
 List<Country> countryList = [
   new Country(
     name: 'England',
@@ -55,3 +60,22 @@ List<Country> countryList = [
     ],
   )
 ];
+
+//list of the methods that can be selected on the breakdown view
+//Yearly selected by default
+List<BreakdownMethod> breakdownMethods = [
+  new BreakdownMethod(method: "Yearly", isSelected: true),
+  new BreakdownMethod(method: "Monthly", isSelected: false),
+  new BreakdownMethod(method: "Hourly", isSelected: false),
+];
+
+//List of the salary breakdown percentage methods
+//None selected by default
+List<BreakdownPercentage> breakdownPercentages = [
+  new BreakdownPercentage(method: "Tax", isSelected: false),
+  new BreakdownPercentage(method: "NI Contr...", isSelected: false),
+  new BreakdownPercentage(method: "Pension", isSelected: false)
+];
+//reusable currency formatter
+final formatCurrency =
+    new NumberFormat.simpleCurrency(locale: 'en_GB', decimalDigits: 0);

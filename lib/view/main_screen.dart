@@ -2,6 +2,7 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tax_simplified/constants.dart';
+import 'package:tax_simplified/view/breakdown_screen.dart';
 
 class MainScreen extends StatefulWidget {
   MainScreen({Key? key}) : super(key: key);
@@ -12,9 +13,10 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   var salaryController = new TextEditingController();
-  final formatCurrency =
-      new NumberFormat.simpleCurrency(locale: 'en_GB', decimalDigits: 0);
+
   double netSalary = -1;
+  double grossSalary = -1;
+  double taxPercentage = 0;
 
   void calculateSalary(String salary) {
     int parsedGross = int.parse(salary.substring(1).replaceAll(',', ''));
@@ -25,12 +27,16 @@ class _MainScreenState extends State<MainScreen> {
             parsedGross <= bracket.range[1]) {
           setState(() {
             netSalary = parsedGross - (parsedGross * bracket.percentage);
+            grossSalary = parsedGross.toDouble();
+            taxPercentage = bracket.percentage;
           });
         }
       } else {
         if (parsedGross >= bracket.range[0]) {
           setState(() {
             netSalary = parsedGross - (parsedGross * bracket.percentage);
+            grossSalary = parsedGross.toDouble();
+            taxPercentage = bracket.percentage;
           });
         }
       }
@@ -158,7 +164,8 @@ class _MainScreenState extends State<MainScreen> {
                     height: height * 0.02,
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.only(
+                        top: 16.0, left: 16.0, right: 16.0),
                     child: Text(
                       "Salary per year (GBP)",
                       textAlign: TextAlign.left,
@@ -176,7 +183,7 @@ class _MainScreenState extends State<MainScreen> {
                       child: new TextField(
                           style: TextStyle(
                             color: greyColor,
-                            fontSize: 22.0,
+                            fontSize: 32.0,
                             fontWeight: FontWeight.w600,
                           ),
                           controller: salaryController,
@@ -280,7 +287,15 @@ class _MainScreenState extends State<MainScreen> {
                                 ),
                               ),
                               onPressed: () => {
-                                print('go to summary'),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => BreakdownScreen(
+                                            netSalary: netSalary,
+                                            grossSalary: grossSalary,
+                                            taxPercentage: taxPercentage,
+                                          )),
+                                )
                               },
                               style: ButtonStyle(
                                 backgroundColor:
