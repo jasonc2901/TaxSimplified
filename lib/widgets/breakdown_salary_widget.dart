@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tax_simplified/constants.dart';
 
 class BreakdownSalaryWidget extends StatefulWidget {
-  final double grossSalary;
-  final double netSalary;
+  double grossSalary;
+  double netSalary;
   BreakdownSalaryWidget(
       {Key? key, required this.grossSalary, required this.netSalary})
       : super(key: key);
@@ -13,6 +13,15 @@ class BreakdownSalaryWidget extends StatefulWidget {
 }
 
 class _BreakdownSalaryWidgetState extends State<BreakdownSalaryWidget> {
+  double gross = 0;
+  double net = 0;
+  @override
+  void initState() {
+    super.initState();
+    gross = widget.grossSalary;
+    net = widget.netSalary;
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -44,6 +53,17 @@ class _BreakdownSalaryWidgetState extends State<BreakdownSalaryWidget> {
                     setState(() {
                       breakdownMethods.forEach((m) => m.isSelected = false);
                       method.isSelected = true;
+                      gross = method.method == 'Monthly'
+                          ? widget.grossSalary / 12
+                          : method.method == 'Weekly'
+                              ? widget.grossSalary / 52
+                              : widget.grossSalary;
+
+                      net = method.method == 'Monthly'
+                          ? widget.netSalary / 12
+                          : method.method == 'Weekly'
+                              ? widget.netSalary / 52
+                              : widget.netSalary;
                     })
                   },
                   style: ButtonStyle(
@@ -82,7 +102,7 @@ class _BreakdownSalaryWidgetState extends State<BreakdownSalaryWidget> {
         Padding(
           padding: const EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
           child: Text(
-            '${formatCurrency.format(widget.grossSalary)}',
+            '${formatCurrency.format(gross)}',
             textAlign: TextAlign.left,
             style: TextStyle(
               color: Colors.white,
@@ -114,7 +134,7 @@ class _BreakdownSalaryWidgetState extends State<BreakdownSalaryWidget> {
         Padding(
           padding: const EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
           child: Text(
-            '${formatCurrency.format(widget.netSalary)}',
+            '${formatCurrency.format(net)}',
             textAlign: TextAlign.left,
             style: TextStyle(
               color: Colors.white,

@@ -66,7 +66,7 @@ List<Country> countryList = [
 List<BreakdownMethod> breakdownMethods = [
   new BreakdownMethod(method: "Yearly", isSelected: true),
   new BreakdownMethod(method: "Monthly", isSelected: false),
-  new BreakdownMethod(method: "Hourly", isSelected: false),
+  new BreakdownMethod(method: "Weekly", isSelected: false),
 ];
 
 //List of the salary breakdown percentage methods
