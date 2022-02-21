@@ -19,6 +19,9 @@ class _MainScreenState extends State<MainScreen> {
   double taxPercentage = 0;
 
   void calculateSalary(String salary) {
+    //close the keyboard when calculate is pressed
+    FocusManager.instance.primaryFocus?.unfocus();
+
     int parsedGross = int.parse(salary.substring(1).replaceAll(',', ''));
     var selectedCountry = countryList.where((c) => c.isSelected == true).first;
     selectedCountry.brackets.forEach((bracket) {
@@ -51,6 +54,7 @@ class _MainScreenState extends State<MainScreen> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: darkPurple,
         body: Column(
           children: [
