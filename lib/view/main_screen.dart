@@ -18,12 +18,19 @@ class _MainScreenState extends State<MainScreen> {
   double grossSalary = -1;
   double taxPercentage = 0;
 
+  @override
+  void initState() {
+    resetValues();
+    super.initState();
+  }
+
   void calculateSalary(String salary) {
     //close the keyboard when calculate is pressed
     FocusManager.instance.primaryFocus?.unfocus();
 
     int parsedGross = int.parse(salary.substring(1).replaceAll(',', ''));
     var selectedCountry = countryList.where((c) => c.isSelected == true).first;
+
     selectedCountry.brackets.forEach((bracket) {
       if (bracket.range.length > 1) {
         if (parsedGross >= bracket.range[0] &&
@@ -46,10 +53,39 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void resetValues() {
+    setState(() {
+      countryList.forEach((c) => c.isSelected = false);
+      breakdownMethods.forEach((m) => m.isSelected = m.method == 'Yearly');
+      breakdownPercentages.forEach((p) => p.isSelected = false);
+      salaryController.clear();
+      netSalary = -1;
+      grossSalary = -1;
+      taxPercentage = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+
+    void showBreakdown() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BreakdownScreen(
+            netSalary: netSalary,
+            grossSalary: grossSalary,
+            taxPercentage: taxPercentage,
+          ),
+        ),
+      ).then(
+        (value) => setState(
+          (() => {resetValues()}),
+        ),
+      );
+    }
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -290,17 +326,7 @@ class _MainScreenState extends State<MainScreen> {
                                   ),
                                 ),
                               ),
-                              onPressed: () => {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => BreakdownScreen(
-                                            netSalary: netSalary,
-                                            grossSalary: grossSalary,
-                                            taxPercentage: taxPercentage,
-                                          )),
-                                )
-                              },
+                              onPressed: () => showBreakdown(),
                               style: ButtonStyle(
                                 backgroundColor:
                                     MaterialStateProperty.all<Color>(
