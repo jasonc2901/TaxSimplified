@@ -1,7 +1,5 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
 import 'package:tax_simplified/constants.dart';
 import 'package:tax_simplified/helpers/toast.dart';
 import 'package:tax_simplified/view/breakdown_screen.dart';
