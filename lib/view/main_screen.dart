@@ -1,7 +1,9 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:tax_simplified/constants.dart';
+import 'package:tax_simplified/helpers/toast.dart';
 import 'package:tax_simplified/view/breakdown_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -25,18 +27,26 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void calculateSalary(String salary) {
-    //close the keyboard when calculate is pressed
     FocusManager.instance.primaryFocus?.unfocus();
+    // ignore: avoid_init_to_null
+    var selectedCountry = salary.length > 0
+        ? countryList.where((c) => c.isSelected == true).first
+        : null;
+
+    if (selectedCountry == null) {
+      showErrorToast('Country and Salary must both be provided!');
+      return;
+    }
 
     int parsedGross = int.parse(salary.substring(1).replaceAll(',', ''));
-    var selectedCountry = countryList.where((c) => c.isSelected == true).first;
 
     selectedCountry.brackets.forEach((bracket) {
       if (bracket.range.length > 1) {
         if (parsedGross >= bracket.range[0] &&
             parsedGross <= bracket.range[1]) {
           setState(() {
-            netSalary = parsedGross - (parsedGross * bracket.percentage);
+            netSalary =
+                parsedGross - (parsedGross * bracket.percentage).toDouble();
             grossSalary = parsedGross.toDouble();
             taxPercentage = bracket.percentage;
           });
@@ -44,7 +54,8 @@ class _MainScreenState extends State<MainScreen> {
       } else {
         if (parsedGross >= bracket.range[0]) {
           setState(() {
-            netSalary = parsedGross - (parsedGross * bracket.percentage);
+            netSalary =
+                parsedGross - (parsedGross * bracket.percentage).toDouble();
             grossSalary = parsedGross.toDouble();
             taxPercentage = bracket.percentage;
           });
