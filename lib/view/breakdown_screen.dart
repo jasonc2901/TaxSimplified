@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tax_simplified/widgets/breakdown_salary_widget.dart';
 import 'package:tax_simplified/widgets/percentage_breakdown.dart';
+import 'package:tax_simplified/widgets/rounded_container.dart';
 
 import '../constants.dart';
+import '../widgets/appbar.dart';
 
 class BreakdownScreen extends StatefulWidget {
   final double grossSalary;
@@ -32,31 +34,17 @@ class _BreakdownScreenState extends State<BreakdownScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: darkPurple,
-        title: Text(
-          "Salary Breakdown",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w400,
-            fontSize: 32.0,
-          ),
-        ),
-        shadowColor: Colors.transparent,
+      appBar: SystemAppBar(
+        title: 'Salary Breakdown',
+        color: darkPurple,
+        textColor: Colors.white,
       ),
       body: Column(
         children: [
-          Container(
-            height: height * 0.45,
-            width: width,
-            decoration: BoxDecoration(
-              color: darkPurple,
-              borderRadius: new BorderRadius.only(
-                bottomLeft: const Radius.circular(40.0),
-                bottomRight: const Radius.circular(40.0),
-              ),
-            ),
-            child: BreakdownSalaryWidget(
+          RoundedWidget(
+            backgroundColor: darkPurple,
+            widgetHeight: height * 0.45,
+            childWidget: BreakdownSalaryWidget(
               grossSalary: widget.grossSalary,
               netSalary: widget.netSalary,
             ),

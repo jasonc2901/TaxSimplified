@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:tax_simplified/constants.dart';
 import 'package:tax_simplified/helpers/toast.dart';
 import 'package:tax_simplified/view/breakdown_screen.dart';
+import 'package:tax_simplified/view/settings_screen.dart';
+import 'package:tax_simplified/widgets/rounded_button.dart';
+import 'package:tax_simplified/widgets/rounded_container.dart';
 
 class MainScreen extends StatefulWidget {
   MainScreen({Key? key}) : super(key: key);
@@ -96,6 +99,13 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
+    void showSettings() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SettingsScreen()),
+      );
+    }
+
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -103,29 +113,38 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: darkPurple,
         body: Column(
           children: [
-            Container(
-              height: height * 0.6,
-              width: width,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: new BorderRadius.only(
-                  bottomLeft: const Radius.circular(40.0),
-                  bottomRight: const Radius.circular(40.0),
-                ),
-              ),
-              child: Column(
+            RoundedWidget(
+              backgroundColor: Colors.white,
+              widgetHeight: height * 0.65,
+              childWidget: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: height * 0.06),
-                    child: Center(
-                      child: Text(
-                        "Salary Information",
-                        style: TextStyle(
-                          color: lightPurple,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 32.0,
-                        ),
+                  SizedBox(
+                    height: height * 0.05,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.settings),
+                        color: darkPurple,
+                        iconSize: 35,
+                        onPressed: () {
+                          setState(() {
+                            showSettings();
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: Text(
+                      "Salary Information",
+                      style: TextStyle(
+                        color: darkPurple,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 32.0,
                       ),
                     ),
                   ),
@@ -138,7 +157,7 @@ class _MainScreenState extends State<MainScreen> {
                       "Country",
                       textAlign: TextAlign.left,
                       style: TextStyle(
-                        color: lightPurple,
+                        color: darkPurple,
                         fontWeight: FontWeight.w400,
                         fontSize: 28.0,
                       ),
@@ -219,7 +238,7 @@ class _MainScreenState extends State<MainScreen> {
                       "Salary per year (GBP)",
                       textAlign: TextAlign.left,
                       style: TextStyle(
-                        color: lightPurple,
+                        color: darkPurple,
                         fontWeight: FontWeight.w400,
                         fontSize: 28.0,
                       ),
@@ -258,42 +277,9 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                   Spacer(),
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: height * 0.05),
-                      child: ElevatedButton(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                            'Calculate',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                            ),
-                          ),
-                        ),
-                        onPressed: () => {
-                          calculateSalary(salaryController.text),
-                        },
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(orangeColor),
-                          foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
-                          shadowColor: MaterialStateProperty.all<Color>(
-                              Colors.transparent),
-                          overlayColor: MaterialStateProperty.all<Color>(
-                              Colors.transparent),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.0),
-                              side: BorderSide(color: orangeColor),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  RoundedButtonWidget(
+                      onPressed: () => calculateSalary(salaryController.text),
+                      text: 'Caculate')
                 ],
               ),
             ),
@@ -321,43 +307,12 @@ class _MainScreenState extends State<MainScreen> {
                             fontSize: 46.0,
                           ),
                         ),
-                        Center(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                bottom: height * 0.05, top: height * 0.05),
-                            child: ElevatedButton(
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Text(
-                                  'Full Breakdown',
-                                  style: TextStyle(
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                              ),
-                              onPressed: () => showBreakdown(),
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        orangeColor),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Colors.white),
-                                shadowColor: MaterialStateProperty.all<Color>(
-                                    Colors.transparent),
-                                overlayColor: MaterialStateProperty.all<Color>(
-                                    Colors.transparent),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    side: BorderSide(color: orangeColor),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        SizedBox(
+                          height: 20,
                         ),
+                        RoundedButtonWidget(
+                            onPressed: () => showBreakdown(),
+                            text: 'Full Breakdown')
                       ],
                     ),
                   )
