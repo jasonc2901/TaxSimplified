@@ -1,6 +1,8 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tax_simplified/constants.dart';
+import 'package:tax_simplified/helpers/toast.dart';
 import 'package:tax_simplified/widgets/appbar.dart';
 import 'package:tax_simplified/widgets/rounded_button.dart';
 import 'package:tax_simplified/widgets/rounded_container.dart';
@@ -14,11 +16,35 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isNIChecked = false;
+  var pensionController = new TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    retrieveSettings();
+  }
+
+  Future<void> retrieveSettings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var pension_ctr = prefs.getInt("pension_contribution");
+      isNIChecked = prefs.getBool("ni_checked")!;
+      pensionController.text = pension_ctr != 0 ? "%${pension_ctr}" : "";
+    });
+  }
+
+  Future<void> saveSettings(niEnabled, pension) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var pension_ctr = int.tryParse(pension);
+    prefs.setBool("ni_checked", niEnabled);
+    prefs.setInt("pension_contribution", pension_ctr != null ? pension_ctr : 0);
+    showSuccessToast("Settings saved successfully!");
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
-    var pensionController = new TextEditingController();
 
     return Scaffold(
       backgroundColor: darkPurple,
@@ -49,15 +75,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                  padding: const EdgeInsets.only(left: 5.0),
                   child: Row(
                     children: [
-                      Text(
-                        isNIChecked ? 'Enabled' : 'Disabled',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
                       Transform.scale(
                         scale: 1.20,
                         child: Checkbox(
@@ -69,6 +89,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               isNIChecked = value!;
                             });
                           },
+                        ),
+                      ),
+                      Text(
+                        isNIChecked ? 'Enabled' : 'Disabled',
+                        style: TextStyle(
+                          fontSize: 20,
                         ),
                       ),
                     ],
@@ -121,6 +147,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   text: 'Update settings',
                   onPressed: () {
                     FocusManager.instance.primaryFocus?.unfocus();
+                    saveSettings(isNIChecked,
+                        pensionController.text.replaceAll('%', ''));
                     print(
                         'Settings\nNI Enabled: $isNIChecked\nPension: ${pensionController.text}');
                   },

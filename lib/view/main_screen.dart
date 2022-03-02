@@ -103,6 +103,10 @@ class _MainScreenState extends State<MainScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => SettingsScreen()),
+      ).then(
+        (value) => setState(
+          (() => {resetValues()}),
+        ),
       );
     }
 
