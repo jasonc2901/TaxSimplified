@@ -1,9 +1,11 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_select/smart_select.dart';
 import 'package:tax_simplified/constants.dart';
 import 'package:tax_simplified/helpers/toast.dart';
 import 'package:tax_simplified/widgets/appbar.dart';
+import 'package:tax_simplified/widgets/ni_preference_dropdown.dart';
 import 'package:tax_simplified/widgets/rounded_button.dart';
 import 'package:tax_simplified/widgets/rounded_container.dart';
 
@@ -16,6 +18,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isNIChecked = false;
+  var pension_ctr = 0;
+  bool niInfoProvided = false;
+  var prefs = null;
+
+  //controller for text input
   var pensionController = new TextEditingController();
 
   @override
@@ -25,10 +32,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> retrieveSettings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
     setState(() {
-      var pension_ctr = prefs.getInt("pension_contribution");
-      isNIChecked = prefs.getBool("ni_checked")!;
+      if (prefs.getInt("pension_contribution") != null) {
+        pension_ctr = prefs.getInt("pension_contribution")!;
+      }
+
+      if (prefs.getBool("ni_info_provided") != null) {
+        niInfoProvided = prefs.getBool("ni_info_provided")!;
+        if (prefs.getBool("ni_checked") != null) {
+          isNIChecked = prefs.getBool("ni_checked")!;
+        }
+      }
       pensionController.text = pension_ctr != 0 ? "%${pension_ctr}" : "";
     });
   }
@@ -57,7 +72,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           RoundedWidget(
             backgroundColor: Colors.white,
-            widgetHeight: height * 0.4,
+            widgetHeight: height * 0.5,
             childWidget: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -65,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding:
                       const EdgeInsets.only(top: 26.0, left: 16.0, right: 16.0),
                   child: Text(
-                    "Include National Insurance",
+                    "National Insurance",
                     textAlign: TextAlign.left,
                     style: TextStyle(
                       color: darkPurple,
@@ -75,31 +90,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 5.0),
-                  child: Row(
-                    children: [
-                      Transform.scale(
-                        scale: 1.20,
-                        child: Checkbox(
-                          value: isNIChecked,
-                          checkColor: Colors.white,
-                          activeColor: darkPurple,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isNIChecked = value!;
-                            });
-                          },
-                        ),
-                      ),
-                      Text(
-                        isNIChecked ? 'Enabled' : 'Disabled',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
+                  padding:
+                      const EdgeInsets.only(top: 6.0, left: 16.0, right: 16.0),
+                  child: Text(
+                    "Before we can calculate NI you must tell us which of the following applies to you",
+                    style: TextStyle(fontSize: 16.0),
                   ),
                 ),
+                NIPreferenceDropdown(
+                  updateState: (dropdownVal) {
+                    setState(() {
+                      prefs.setBool("ni_info_provided", true);
+                      retrieveSettings();
+                    });
+                  },
+                  clearChoice: () {
+                    setState(() {
+                      prefs.setBool("ni_info_provided", false);
+                      retrieveSettings();
+                    });
+                  },
+                ),
+                niInfoProvided
+                    ? Padding(
+                        padding: const EdgeInsets.only(
+                            top: 26.0, left: 16.0, right: 16.0),
+                        child: Text(
+                          "Include National Insurance",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: niInfoProvided ? darkPurple : greyColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 22.0,
+                          ),
+                        ),
+                      )
+                    : Container(),
+                niInfoProvided
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 5.0),
+                        child: Row(
+                          children: [
+                            Transform.scale(
+                              scale: 1.20,
+                              child: Checkbox(
+                                value: isNIChecked,
+                                checkColor: Colors.white,
+                                activeColor: darkPurple,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    isNIChecked = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                            Text(
+                              isNIChecked ? 'Enabled' : 'Disabled',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 Padding(
                   padding:
                       const EdgeInsets.only(top: 22.0, left: 16.0, right: 16.0),
@@ -149,8 +203,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     FocusManager.instance.primaryFocus?.unfocus();
                     saveSettings(isNIChecked,
                         pensionController.text.replaceAll('%', ''));
-                    print(
-                        'Settings\nNI Enabled: $isNIChecked\nPension: ${pensionController.text}');
                   },
                 )
               ],
