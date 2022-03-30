@@ -1,5 +1,6 @@
 import 'package:flutter/painting.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_select/smart_select.dart';
 import 'package:tax_simplified/models/breakdown_methods.dart';
 import 'package:tax_simplified/models/breakdown_percentage.dart';
 import 'package:tax_simplified/models/tax_bracket.dart';
@@ -9,6 +10,7 @@ import 'package:tax_simplified/models/country.dart';
 const Color lightPurple = Color(0xFF6651D9);
 const Color darkPurple = Color(0xFF5241C5);
 const Color orangeColor = Color(0xFFFF7518);
+const Color redColor = Color.fromARGB(255, 240, 76, 35);
 const Color greyColor = Color(0xFF6D6A6A);
 const String apptitle = "Tax Simplified";
 
@@ -79,3 +81,11 @@ List<BreakdownPercentage> breakdownPercentages = [
 //reusable currency formatter
 final formatCurrency =
     new NumberFormat.simpleCurrency(locale: 'en_GB', decimalDigits: 0);
+
+List<S2Choice<String>> ni_dropdown_options = [
+  S2Choice<String>(value: 'B', title: 'I am a married woman/Widowed woman'),
+  S2Choice<String>(value: 'C', title: 'I am over the state pension age'),
+  S2Choice<String>(value: 'H', title: 'I am an apprentice under 25'),
+  S2Choice<String>(value: 'M', title: 'I am an apprentice under 21'),
+  S2Choice<String>(value: 'A', title: 'None of the above'),
+];

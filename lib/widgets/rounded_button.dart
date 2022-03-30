@@ -5,19 +5,25 @@ import '../constants.dart';
 class RoundedButtonWidget extends StatelessWidget {
   final VoidCallback onPressed;
   final String text;
-  const RoundedButtonWidget(
-      {Key? key, required this.onPressed, required this.text})
-      : super(key: key);
+  final Color color;
+  final double padding;
+
+  const RoundedButtonWidget({
+    Key? key,
+    required this.onPressed,
+    required this.text,
+    required this.color,
+    required this.padding,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
     return Center(
       child: Padding(
-        padding: EdgeInsets.only(bottom: height * 0.05),
+        padding: EdgeInsets.only(bottom: padding),
         child: ElevatedButton(
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: EdgeInsets.all(padding == 0 ? 0 : 12),
             child: Text(
               text,
               style: TextStyle(
@@ -27,14 +33,14 @@ class RoundedButtonWidget extends StatelessWidget {
           ),
           onPressed: onPressed,
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(orangeColor),
+            backgroundColor: MaterialStateProperty.all<Color>(color),
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
             shadowColor: MaterialStateProperty.all<Color>(Colors.transparent),
             overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25.0),
-                side: BorderSide(color: orangeColor),
+                side: BorderSide(color: color),
               ),
             ),
           ),

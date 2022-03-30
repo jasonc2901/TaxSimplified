@@ -4,6 +4,7 @@ import 'package:tax_simplified/constants.dart';
 import 'dart:ui' as ui;
 
 import 'package:tax_simplified/view/main_screen.dart';
+import 'package:tax_simplified/widgets/rounded_button.dart';
 
 class IntroScreen extends StatefulWidget {
   IntroScreen({Key? key}) : super(key: key);
@@ -70,45 +71,17 @@ class _IntroScreenState extends State<IntroScreen> {
                         ),
                       ),
                       Spacer(),
-                      Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(bottom: screenHeight * 0.05),
-                          child: ElevatedButton(
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Text(
-                                'Get Started',
-                                style: TextStyle(
-                                  fontSize: 22.0,
-                                ),
-                              ),
-                            ),
-                            onPressed: () => {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => MainScreen()),
-                              )
-                            },
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all<Color>(orangeColor),
-                              foregroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.white),
-                              shadowColor: MaterialStateProperty.all<Color>(
-                                  Colors.transparent),
-                              overlayColor: MaterialStateProperty.all<Color>(
-                                  Colors.transparent),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  side: BorderSide(color: orangeColor),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                      RoundedButtonWidget(
+                        onPressed: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MainScreen()),
+                          )
+                        },
+                        text: "Get Started",
+                        color: orangeColor,
+                        padding: screenHeight * 0.05,
                       ),
                       SizedBox(
                         height: 30.0,

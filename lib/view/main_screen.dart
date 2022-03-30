@@ -282,8 +282,11 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   Spacer(),
                   RoundedButtonWidget(
-                      onPressed: () => calculateSalary(salaryController.text),
-                      text: 'Caculate')
+                    onPressed: () => calculateSalary(salaryController.text),
+                    text: 'Caculate',
+                    color: orangeColor,
+                    padding: height * 0.05,
+                  )
                 ],
               ),
             ),
@@ -315,8 +318,11 @@ class _MainScreenState extends State<MainScreen> {
                           height: 20,
                         ),
                         RoundedButtonWidget(
-                            onPressed: () => showBreakdown(),
-                            text: 'Full Breakdown')
+                          onPressed: () => showBreakdown(),
+                          text: 'Full Breakdown',
+                          color: orangeColor,
+                          padding: 0,
+                        )
                       ],
                     ),
                   )

@@ -9,6 +9,8 @@ import 'package:tax_simplified/widgets/ni_preference_dropdown.dart';
 import 'package:tax_simplified/widgets/rounded_button.dart';
 import 'package:tax_simplified/widgets/rounded_container.dart';
 
+import '../helpers/setting_control.dart';
+
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key? key}) : super(key: key);
 
@@ -28,32 +30,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    retrieveSettings();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      retrieveSettings();
+    });
   }
 
+  var loading = true;
+  var dropdownVal = "";
   Future<void> retrieveSettings() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
       if (prefs.getInt("pension_contribution") != null) {
         pension_ctr = prefs.getInt("pension_contribution")!;
+      } else {
+        pension_ctr = 0;
       }
 
       if (prefs.getBool("ni_info_provided") != null) {
         niInfoProvided = prefs.getBool("ni_info_provided")!;
         if (prefs.getBool("ni_checked") != null) {
           isNIChecked = prefs.getBool("ni_checked")!;
+        } else {
+          isNIChecked = false;
         }
+      } else {
+        niInfoProvided = false;
       }
-      pensionController.text = pension_ctr != 0 ? "%${pension_ctr}" : "";
-    });
-  }
 
-  Future<void> saveSettings(niEnabled, pension) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var pension_ctr = int.tryParse(pension);
-    prefs.setBool("ni_checked", niEnabled);
-    prefs.setInt("pension_contribution", pension_ctr != null ? pension_ctr : 0);
-    showSuccessToast("Settings saved successfully!");
+      dropdownVal = prefs.getString("ni_dropdown_selection") ?? "";
+      pensionController.text = pension_ctr != 0 ? "%${pension_ctr}" : "";
+      loading = false;
+    });
   }
 
   @override
@@ -72,141 +79,168 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           RoundedWidget(
             backgroundColor: Colors.white,
-            widgetHeight: height * 0.5,
-            childWidget: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.only(top: 26.0, left: 16.0, right: 16.0),
-                  child: Text(
-                    "National Insurance",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: darkPurple,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 22.0,
+            widgetHeight: height * 0.6,
+            childWidget: loading
+                ? Center(
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(top: 6.0, left: 16.0, right: 16.0),
-                  child: Text(
-                    "Before we can calculate NI you must tell us which of the following applies to you",
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                ),
-                NIPreferenceDropdown(
-                  updateState: (dropdownVal) {
-                    setState(() {
-                      prefs.setBool("ni_info_provided", true);
-                      retrieveSettings();
-                    });
-                  },
-                  clearChoice: () {
-                    setState(() {
-                      prefs.setBool("ni_info_provided", false);
-                      retrieveSettings();
-                    });
-                  },
-                ),
-                niInfoProvided
-                    ? Padding(
-                        padding: const EdgeInsets.only(
-                            top: 26.0, left: 16.0, right: 16.0),
-                        child: Text(
-                          "Include National Insurance",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            color: niInfoProvided ? darkPurple : greyColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 22.0,
+                  )
+                : Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: 26.0, left: 16.0, right: 16.0),
+                          child: Text(
+                            "National Insurance",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              color: darkPurple,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 22.0,
+                            ),
                           ),
                         ),
-                      )
-                    : Container(),
-                niInfoProvided
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Row(
-                          children: [
-                            Transform.scale(
-                              scale: 1.20,
-                              child: Checkbox(
-                                value: isNIChecked,
-                                checkColor: Colors.white,
-                                activeColor: darkPurple,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    isNIChecked = value!;
-                                  });
-                                },
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: 6.0, left: 16.0, right: 16.0),
+                          child: Text(
+                            "Before we can calculate NI you must tell us which of the following applies to you",
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                        ),
+                        NIPreferenceDropdown(
+                          updateState: (dropdownVal) {
+                            updateNIDropdownSettings(dropdownVal, true);
+                            retrieveSettings();
+                          },
+                          clearChoice: () {
+                            setState(() {
+                              updateNIDropdownSettings("", false);
+                              retrieveSettings();
+                            });
+                          },
+                          value: dropdownVal,
+                        ),
+                        niInfoProvided
+                            ? Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 26.0, left: 16.0, right: 16.0),
+                                child: Text(
+                                  "Include National Insurance",
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    color:
+                                        niInfoProvided ? darkPurple : greyColor,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 22.0,
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                        niInfoProvided
+                            ? Padding(
+                                padding: const EdgeInsets.only(left: 5.0),
+                                child: Row(
+                                  children: [
+                                    Transform.scale(
+                                      scale: 1.20,
+                                      child: Checkbox(
+                                        value: isNIChecked,
+                                        checkColor: Colors.white,
+                                        activeColor: darkPurple,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            isNIChecked = value!;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Text(
+                                      isNIChecked ? 'Enabled' : 'Disabled',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Container(),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: 22.0, left: 16.0, right: 16.0),
+                          child: Text(
+                            "Pension Contribution",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              color: darkPurple,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 22.0,
                             ),
-                            Text(
-                              isNIChecked ? 'Enabled' : 'Disabled',
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                          width: width * 0.45,
+                          child: TextField(
                               style: TextStyle(
-                                fontSize: 20,
+                                color: greyColor,
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
                               ),
-                            ),
-                          ],
+                              controller: pensionController,
+                              cursorColor: darkPurple,
+                              decoration: InputDecoration(
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: greyColor),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: greyColor),
+                                ),
+                              ),
+                              inputFormatters: [
+                                CurrencyTextInputFormatter(
+                                  symbol: "%",
+                                  decimalDigits: 0,
+                                )
+                              ],
+                              keyboardType: TextInputType
+                                  .number // Only numbers can be entered
+                              ),
                         ),
-                      )
-                    : Container(),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(top: 22.0, left: 16.0, right: 16.0),
-                  child: Text(
-                    "Pension Contribution",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: darkPurple,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 22.0,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 16.0, right: 16.0),
-                  width: width * 0.45,
-                  child: TextField(
-                      style: TextStyle(
-                        color: greyColor,
-                        fontSize: 22.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      controller: pensionController,
-                      cursorColor: darkPurple,
-                      decoration: InputDecoration(
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: greyColor),
+                        Spacer(),
+                        RoundedButtonWidget(
+                          text: 'Update settings',
+                          color: orangeColor,
+                          padding: height * 0.02,
+                          onPressed: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            saveSettings(isNIChecked,
+                                pensionController.text.replaceAll('%', ''));
+                          },
                         ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: greyColor),
-                        ),
-                      ),
-                      inputFormatters: [
-                        CurrencyTextInputFormatter(
-                          symbol: "%",
-                          decimalDigits: 0,
+                        RoundedButtonWidget(
+                          text: 'Reset settings',
+                          color: redColor,
+                          padding: height * 0.02,
+                          onPressed: () async {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            await resetAllSettings().then((value) async {
+                              loading = true;
+                              await retrieveSettings().then((value) {
+                                showSuccessToast(
+                                    "Settings reset successfully!");
+                              });
+                            });
+                          },
                         )
                       ],
-                      keyboardType:
-                          TextInputType.number // Only numbers can be entered
-                      ),
-                ),
-                Spacer(),
-                RoundedButtonWidget(
-                  text: 'Update settings',
-                  onPressed: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    saveSettings(isNIChecked,
-                        pensionController.text.replaceAll('%', ''));
-                  },
-                )
-              ],
-            ),
+                    ),
+                  ),
           )
         ],
       ),

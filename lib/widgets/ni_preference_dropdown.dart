@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:smart_select/smart_select.dart';
-import 'package:tax_simplified/widgets/rounded_button_no_padding.dart';
-
+import 'package:tax_simplified/widgets/rounded_button.dart';
 import '../constants.dart';
 
 class NIPreferenceDropdown extends StatefulWidget {
   final Function updateState;
   final Function clearChoice;
+  final String value;
   NIPreferenceDropdown(
-      {Key? key, required this.updateState, required this.clearChoice})
+      {Key? key,
+      required this.updateState,
+      required this.clearChoice,
+      required this.value})
       : super(key: key);
 
   @override
@@ -17,78 +20,88 @@ class NIPreferenceDropdown extends StatefulWidget {
 }
 
 class _NIPreferenceDropdownState extends State<NIPreferenceDropdown> {
-  List<S2Choice<String>> options = [
-    S2Choice<String>(value: 'ion', title: 'Ionic'),
-    S2Choice<String>(value: 'flu', title: 'Flutter'),
-    S2Choice<String>(value: 'rea', title: 'React Native'),
-  ];
-
-  var value = '';
-  Future<void> updateDropdown(dropdownVal) async {
-    widget.updateState(dropdownVal);
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SmartSelect<String>.single(
-      title: 'Please select one',
-      value: value,
-      modalType: S2ModalType.bottomSheet,
-      modalConfig: const S2ModalConfig(
-        style: S2ModalStyle(
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
+    return Column(
+      children: [
+        SmartSelect<String>.single(
+          title: 'Please select one',
+          value: widget.value,
+          modalType: S2ModalType.bottomSheet,
+          modalConfig: const S2ModalConfig(
+            style: S2ModalStyle(
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
+                ),
+              ),
             ),
           ),
+          modalConfirm: true,
+          modalHeaderBuilder: (context, state) {
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
+                ),
+                color: darkPurple,
+              ),
+              height: kToolbarHeight * 1.1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 22.0),
+                    child: Text(
+                      "Please select one",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                  Spacer(),
+                  Container(
+                    padding: const EdgeInsets.only(right: 10.0),
+                    child: RoundedButtonWidget(
+                      color: orangeColor,
+                      onPressed: () {
+                        state.value = "";
+                        widget.clearChoice();
+                      },
+                      text: "clear",
+                      padding: 0,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(right: 10.0),
+                    child: RoundedButtonWidget(
+                      color: Color.fromARGB(255, 33, 167, 40),
+                      onPressed: () {
+                        state.closeModal(confirmed: true);
+                      },
+                      text: "confirm",
+                      padding: 0,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          choiceItems: ni_dropdown_options,
+          onChange: (state) {
+            widget.updateState(state.value);
+          },
         ),
-      ),
-      modalConfirm: true,
-      modalHeaderBuilder: (context, state) {
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
-            ),
-            color: darkPurple,
-          ),
-          height: kToolbarHeight * 1.1,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                padding: const EdgeInsets.only(right: 10.0),
-                child: RoundedButtonNoPaddingWidget(
-                  color: orangeColor,
-                  onPressed: () {
-                    widget.clearChoice();
-                  },
-                  text: "clear",
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.only(right: 10.0),
-                child: RoundedButtonNoPaddingWidget(
-                  color: Color.fromARGB(255, 33, 167, 40),
-                  onPressed: () {
-                    setState(() {
-                      value = state.value;
-                      updateDropdown(value);
-                      state.closeModal(confirmed: true);
-                    });
-                  },
-                  text: "confirm",
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      choiceItems: options,
-      onChange: (state) => {},
+      ],
     );
   }
 }
