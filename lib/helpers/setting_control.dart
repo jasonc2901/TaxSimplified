@@ -19,3 +19,10 @@ Future<void> resetAllSettings() async {
   var prefs = await SharedPreferences.getInstance();
   prefs.clear();
 }
+
+Future<bool> isPensionProvided() async {
+  var prefs = await SharedPreferences.getInstance();
+
+  return prefs.getInt("pension_contribution") != null &&
+      prefs.getInt("pension_contribution")! > 0;
+}

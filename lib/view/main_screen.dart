@@ -1,6 +1,7 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:tax_simplified/constants.dart';
+import 'package:tax_simplified/helpers/setting_control.dart';
 import 'package:tax_simplified/helpers/toast.dart';
 import 'package:tax_simplified/view/breakdown_screen.dart';
 import 'package:tax_simplified/view/settings_screen.dart';
@@ -27,11 +28,14 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
   }
 
-  void calculateSalary(String salary) {
+  void calculateSalary(String salary) async {
     FocusManager.instance.primaryFocus?.unfocus();
+
     // ignore: avoid_init_to_null
     var selectedCountry = salary.length > 0
-        ? countryList.where((c) => c.isSelected == true).first
+        ? countryList.any((c) => c.isSelected == true)
+            ? countryList.where((c) => c.isSelected == true).first
+            : null
         : null;
 
     if (selectedCountry == null) {
@@ -39,29 +43,41 @@ class _MainScreenState extends State<MainScreen> {
       return;
     }
 
+    //get the user provided salary and parse it to an integer
     int parsedGross = int.parse(salary.substring(1).replaceAll(',', ''));
 
+    double net = -1, gross = -1, tax = 0;
+
+    //get the relevant tax bracket for the selected country and apply this to the gross salary
     selectedCountry.brackets.forEach((bracket) {
       if (bracket.range.length > 1) {
         if (parsedGross >= bracket.range[0] &&
             parsedGross <= bracket.range[1]) {
-          setState(() {
-            netSalary =
-                parsedGross - (parsedGross * bracket.percentage).toDouble();
-            grossSalary = parsedGross.toDouble();
-            taxPercentage = bracket.percentage;
-          });
+          net = parsedGross - (parsedGross * bracket.percentage).toDouble();
+          gross = parsedGross.toDouble();
+          tax = bracket.percentage;
         }
       } else {
         if (parsedGross >= bracket.range[0]) {
-          setState(() {
-            netSalary =
-                parsedGross - (parsedGross * bracket.percentage).toDouble();
-            grossSalary = parsedGross.toDouble();
-            taxPercentage = bracket.percentage;
-          });
+          net = parsedGross - (parsedGross * bracket.percentage).toDouble();
+          gross = parsedGross.toDouble();
+          tax = bracket.percentage;
         }
       }
+    });
+
+    //check if NI/Pension settings configured and reduce salary by these
+    var pensionProvided = await isPensionProvided();
+    print(pensionProvided);
+    //remove the set state from above and extract into a new method UpdateVals()
+    updateValues(net, gross, tax);
+  }
+
+  void updateValues(double net, double gross, double tax) {
+    setState(() {
+      netSalary = net;
+      grossSalary = gross;
+      taxPercentage = tax;
     });
   }
 
