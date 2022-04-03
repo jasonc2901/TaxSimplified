@@ -10,13 +10,15 @@ class BreakdownScreen extends StatefulWidget {
   final double grossSalary;
   final double netSalary;
   final double taxPercentage;
+  final double pensionPercentage;
 
-  BreakdownScreen(
-      {Key? key,
-      required this.grossSalary,
-      required this.netSalary,
-      required this.taxPercentage})
-      : super(key: key);
+  BreakdownScreen({
+    Key? key,
+    required this.grossSalary,
+    required this.netSalary,
+    required this.taxPercentage,
+    required this.pensionPercentage,
+  }) : super(key: key);
 
   @override
   State<BreakdownScreen> createState() => _BreakdownScreenState();
@@ -30,7 +32,6 @@ class _BreakdownScreenState extends State<BreakdownScreen> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -54,6 +55,7 @@ class _BreakdownScreenState extends State<BreakdownScreen> {
           ),
           PercentageBreakdown(
             taxPercentage: widget.taxPercentage,
+            pensionPercentage: widget.pensionPercentage,
           )
         ],
       ),

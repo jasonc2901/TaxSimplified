@@ -7,12 +7,14 @@ import 'package:tax_simplified/models/tax_bracket.dart';
 import 'package:tax_simplified/models/country.dart';
 
 //all reused colours within the app
+//#region colours
 const Color lightPurple = Color(0xFF6651D9);
 const Color darkPurple = Color(0xFF5241C5);
 const Color orangeColor = Color(0xFFFF7518);
 const Color redColor = Color.fromARGB(255, 240, 76, 35);
 const Color greyColor = Color(0xFF6D6A6A);
 const String apptitle = "Tax Simplified";
+//#endregion
 
 //list of available countries and associated tax brackets
 List<Country> countryList = [
@@ -75,13 +77,11 @@ List<BreakdownMethod> breakdownMethods = [
 //None selected by default
 List<BreakdownPercentage> breakdownPercentages = [
   new BreakdownPercentage(method: "Tax", isSelected: false),
-  new BreakdownPercentage(method: "NI Contr...", isSelected: false),
-  new BreakdownPercentage(method: "Pension", isSelected: false)
+  new BreakdownPercentage(method: "Pension", isSelected: false),
+  new BreakdownPercentage(method: "NI Contr...", isSelected: false)
 ];
-//reusable currency formatter
-final formatCurrency =
-    new NumberFormat.simpleCurrency(locale: 'en_GB', decimalDigits: 0);
 
+//list of available options for the settings dropdown
 List<S2Choice<String>> ni_dropdown_options = [
   S2Choice<String>(value: 'B', title: 'I am a married woman/Widowed woman'),
   S2Choice<String>(value: 'C', title: 'I am over the state pension age'),
@@ -89,3 +89,6 @@ List<S2Choice<String>> ni_dropdown_options = [
   S2Choice<String>(value: 'M', title: 'I am an apprentice under 21'),
   S2Choice<String>(value: 'A', title: 'None of the above'),
 ];
+//reusable currency formatter
+final formatCurrency =
+    new NumberFormat.simpleCurrency(locale: 'en_GB', decimalDigits: 0);

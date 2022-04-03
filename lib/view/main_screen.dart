@@ -1,5 +1,6 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tax_simplified/constants.dart';
 import 'package:tax_simplified/helpers/setting_control.dart';
 import 'package:tax_simplified/helpers/toast.dart';
@@ -66,9 +67,16 @@ class _MainScreenState extends State<MainScreen> {
       }
     });
 
-    //check if NI/Pension settings configured and reduce salary by these
-    var pensionProvided = await isPensionProvided();
-    print(pensionProvided);
+    //check if pension has been provided
+    if (await isPensionProvided()) {
+      net = applyPensionReduction(net, await getPensionContribution());
+    }
+
+    //check if NI is enabled
+    if (await isNationalInsuranceEnabled()) {
+      net = applyNIReduction(net, gross, await getNIDropdownVal());
+    }
+
     //remove the set state from above and extract into a new method UpdateVals()
     updateValues(net, gross, tax);
   }
@@ -98,7 +106,8 @@ class _MainScreenState extends State<MainScreen> {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
-    void showBreakdown() {
+    void showBreakdown() async {
+      var pensionContr = await getPensionContribution();
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -106,6 +115,7 @@ class _MainScreenState extends State<MainScreen> {
             netSalary: netSalary,
             grossSalary: grossSalary,
             taxPercentage: taxPercentage,
+            pensionPercentage: pensionContr.toDouble(),
           ),
         ),
       ).then(

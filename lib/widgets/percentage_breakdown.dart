@@ -4,7 +4,9 @@ import 'package:tax_simplified/widgets/percentage_button.dart';
 
 class PercentageBreakdown extends StatefulWidget {
   final double taxPercentage;
-  PercentageBreakdown({Key? key, required this.taxPercentage})
+  final double pensionPercentage;
+  PercentageBreakdown(
+      {Key? key, required this.taxPercentage, required this.pensionPercentage})
       : super(key: key);
 
   @override
@@ -26,7 +28,7 @@ class _PercentageBreakdownState extends State<PercentageBreakdown> {
           ...breakdownPercentages.map(
             (p) => PercentageButton(
               percentage:
-                  '${removeDecimalZeroFormat(widget.taxPercentage * 100)}%',
+                  '${removeDecimalZeroFormat(p.method == "Pension" ? widget.pensionPercentage : widget.taxPercentage * 100)}%',
               type: p.method,
               isSelected: p.isSelected,
               onPress: () => setState(() {
