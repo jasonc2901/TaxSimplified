@@ -22,22 +22,24 @@ List<Country> countryList = [
     name: 'England',
     imgUrl: 'assets/england.png',
     isSelected: false,
+    personalAllowance: 12570,
     brackets: [
-      new TaxBracket(range: [0, 12569], percentage: 0),
-      new TaxBracket(range: [12570, 37700], percentage: 0.20),
+      new TaxBracket(range: [0, 12570], percentage: 0),
+      new TaxBracket(range: [12571, 37700], percentage: 0.20),
       new TaxBracket(range: [37701, 150000], percentage: 0.40),
-      new TaxBracket(range: [150001], percentage: 0.50),
+      new TaxBracket(range: [150001], percentage: 0.45),
     ],
   ),
   new Country(
     name: 'Scotland',
     imgUrl: 'assets/scotland.png',
     isSelected: false,
+    personalAllowance: 12570,
     brackets: [
-      new TaxBracket(range: [0, 2097], percentage: 0.19),
-      new TaxBracket(range: [2098, 12726], percentage: 0.20),
-      new TaxBracket(range: [12727, 31092], percentage: 0.21),
-      new TaxBracket(range: [31093, 150000], percentage: 0.40),
+      new TaxBracket(range: [0, 2163], percentage: 0.19),
+      new TaxBracket(range: [2164, 13118], percentage: 0.20),
+      new TaxBracket(range: [13119, 31092], percentage: 0.21),
+      new TaxBracket(range: [31093, 150000], percentage: 0.41),
       new TaxBracket(range: [150001], percentage: 0.46),
     ],
   ),
@@ -45,26 +47,29 @@ List<Country> countryList = [
     name: 'N. Ireland',
     imgUrl: 'assets/NI.png',
     isSelected: false,
+    personalAllowance: 12570,
     brackets: [
-      new TaxBracket(range: [0, 12569], percentage: 0),
-      new TaxBracket(range: [12570, 37700], percentage: 0.20),
+      new TaxBracket(range: [0, 12570], percentage: 0),
+      new TaxBracket(range: [12571, 37700], percentage: 0.20),
       new TaxBracket(range: [37701, 150000], percentage: 0.40),
-      new TaxBracket(range: [150001], percentage: 0.50),
+      new TaxBracket(range: [150001], percentage: 0.45),
     ],
   ),
   new Country(
     name: 'Wales',
     imgUrl: 'assets/wales.png',
     isSelected: false,
+    personalAllowance: 12570,
     brackets: [
-      new TaxBracket(range: [0, 12569], percentage: 0),
-      new TaxBracket(range: [12570, 37701], percentage: 0.20),
+      new TaxBracket(range: [0, 12570], percentage: 0),
+      new TaxBracket(range: [12571, 37700], percentage: 0.20),
       new TaxBracket(range: [37701, 150000], percentage: 0.40),
       new TaxBracket(range: [150001], percentage: 0.45),
     ],
   )
 ];
 
+int thresholdLimit = 100000;
 //list of the methods that can be selected on the breakdown view
 //Yearly selected by default
 List<BreakdownMethod> breakdownMethods = [
@@ -91,4 +96,4 @@ List<S2Choice<String>> ni_dropdown_options = [
 ];
 //reusable currency formatter
 final formatCurrency =
-    new NumberFormat.simpleCurrency(locale: 'en_GB', decimalDigits: 0);
+    new NumberFormat.simpleCurrency(locale: 'en_GB', decimalDigits: 2);

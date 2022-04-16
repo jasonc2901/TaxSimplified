@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tax_simplified/constants.dart';
 import 'package:tax_simplified/helpers/setting_control.dart';
+import 'package:tax_simplified/helpers/tax_calculation.dart';
 import 'package:tax_simplified/helpers/toast.dart';
+import 'package:tax_simplified/models/tax_model.dart';
 import 'package:tax_simplified/view/breakdown_screen.dart';
 import 'package:tax_simplified/view/settings_screen.dart';
 import 'package:tax_simplified/widgets/rounded_button.dart';
@@ -22,6 +24,7 @@ class _MainScreenState extends State<MainScreen> {
   double netSalary = -1;
   double grossSalary = -1;
   double taxPercentage = 0;
+  bool showThresholdWarning = false;
 
   @override
   void initState() {
@@ -47,38 +50,30 @@ class _MainScreenState extends State<MainScreen> {
     //get the user provided salary and parse it to an integer
     int parsedGross = int.parse(salary.substring(1).replaceAll(',', ''));
 
-    double net = -1, gross = -1, tax = 0;
-
     //get the relevant tax bracket for the selected country and apply this to the gross salary
-    selectedCountry.brackets.forEach((bracket) {
-      if (bracket.range.length > 1) {
-        if (parsedGross >= bracket.range[0] &&
-            parsedGross <= bracket.range[1]) {
-          net = parsedGross - (parsedGross * bracket.percentage).toDouble();
-          gross = parsedGross.toDouble();
-          tax = bracket.percentage;
-        }
-      } else {
-        if (parsedGross >= bracket.range[0]) {
-          net = parsedGross - (parsedGross * bracket.percentage).toDouble();
-          gross = parsedGross.toDouble();
-          tax = bracket.percentage;
-        }
-      }
-    });
+    var taxModel = new TaxModel(
+        selectedCountry: selectedCountry,
+        net: -1,
+        gross: -1,
+        tax: 0,
+        userSalary: parsedGross);
+
+    calculateTax(taxModel);
 
     //check if pension has been provided
     if (await isPensionProvided()) {
-      net = applyPensionReduction(net, await getPensionContribution());
+      taxModel.net =
+          applyPensionReduction(taxModel.net, await getPensionContribution());
     }
 
     //check if NI is enabled
     if (await isNationalInsuranceEnabled()) {
-      net = applyNIReduction(net, gross, await getNIDropdownVal());
+      taxModel.net = applyNIReduction(
+          taxModel.net, taxModel.gross, await getNIDropdownVal());
     }
 
     //remove the set state from above and extract into a new method UpdateVals()
-    updateValues(net, gross, tax);
+    updateValues(taxModel.net, taxModel.gross, taxModel.tax);
   }
 
   void updateValues(double net, double gross, double tax) {
@@ -86,6 +81,7 @@ class _MainScreenState extends State<MainScreen> {
       netSalary = net;
       grossSalary = gross;
       taxPercentage = tax;
+      showThresholdWarning = gross > thresholdLimit;
     });
   }
 
@@ -340,6 +336,16 @@ class _MainScreenState extends State<MainScreen> {
                             fontSize: 46.0,
                           ),
                         ),
+                        showThresholdWarning
+                            ? Text(
+                                "Threshold for Personal Allowance has been exceeded",
+                                style: TextStyle(
+                                  color: redColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              )
+                            : Container(),
                         SizedBox(
                           height: 20,
                         ),
