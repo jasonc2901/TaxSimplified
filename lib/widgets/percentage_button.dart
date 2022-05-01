@@ -27,8 +27,8 @@ class _PercentageButtonState extends State<PercentageButton> {
       child: Column(
         children: [
           Container(
-            width: 80,
-            height: 80,
+            width: 90,
+            height: 90,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25.0),
               boxShadow: [
@@ -41,7 +41,7 @@ class _PercentageButtonState extends State<PercentageButton> {
                 widget.percentage,
                 style: TextStyle(
                   color: widget.isSelected ? Colors.white : greyColor,
-                  fontSize: 32.0,
+                  fontSize: 22.0,
                 ),
               ),
             ),

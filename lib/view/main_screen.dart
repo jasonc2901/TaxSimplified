@@ -68,8 +68,7 @@ class _MainScreenState extends State<MainScreen> {
 
     //check if NI is enabled
     if (await isNationalInsuranceEnabled()) {
-      taxModel.net = applyNIReduction(
-          taxModel.net, taxModel.gross, await getNIDropdownVal());
+      taxModel.net = applyNIReduction(taxModel);
     }
 
     //remove the set state from above and extract into a new method UpdateVals()
@@ -112,6 +111,9 @@ class _MainScreenState extends State<MainScreen> {
             grossSalary: grossSalary,
             taxPercentage: taxPercentage,
             pensionPercentage: pensionContr.toDouble(),
+            nationalInsurancePercentage: latesUKNationalInsurance,
+            selectedCountry:
+                countryList.where((c) => c.isSelected == true).first,
           ),
         ),
       ).then(

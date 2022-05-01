@@ -16,13 +16,20 @@ const Color greyColor = Color(0xFF6D6A6A);
 const String apptitle = "Tax Simplified";
 //#endregion
 
+int latestUKTaxThreshold = 12570;
+int nationalInsuranceUpperLimit = 50270;
+double latesUKNationalInsurance = 0.1325;
+double higherUKNationalInsurance = 0.0325;
 //list of available countries and associated tax brackets
 List<Country> countryList = [
   new Country(
     name: 'England',
     imgUrl: 'assets/england.png',
     isSelected: false,
-    personalAllowance: 12570,
+    personalAllowance: latestUKTaxThreshold,
+    nationalInsurancePercentage: latesUKNationalInsurance,
+    nationalInsuranceUpperLimit: nationalInsuranceUpperLimit,
+    nationalInsuranceHigherPercentage: higherUKNationalInsurance,
     brackets: [
       new TaxBracket(range: [0, 12570], percentage: 0),
       new TaxBracket(range: [12571, 37700], percentage: 0.20),
@@ -34,7 +41,10 @@ List<Country> countryList = [
     name: 'Scotland',
     imgUrl: 'assets/scotland.png',
     isSelected: false,
-    personalAllowance: 12570,
+    personalAllowance: latestUKTaxThreshold,
+    nationalInsurancePercentage: latesUKNationalInsurance,
+    nationalInsuranceUpperLimit: nationalInsuranceUpperLimit,
+    nationalInsuranceHigherPercentage: higherUKNationalInsurance,
     brackets: [
       new TaxBracket(range: [0, 2163], percentage: 0.19),
       new TaxBracket(range: [2164, 13118], percentage: 0.20),
@@ -47,7 +57,10 @@ List<Country> countryList = [
     name: 'N. Ireland',
     imgUrl: 'assets/NI.png',
     isSelected: false,
-    personalAllowance: 12570,
+    personalAllowance: latestUKTaxThreshold,
+    nationalInsurancePercentage: latesUKNationalInsurance,
+    nationalInsuranceUpperLimit: nationalInsuranceUpperLimit,
+    nationalInsuranceHigherPercentage: higherUKNationalInsurance,
     brackets: [
       new TaxBracket(range: [0, 12570], percentage: 0),
       new TaxBracket(range: [12571, 37700], percentage: 0.20),
@@ -59,7 +72,10 @@ List<Country> countryList = [
     name: 'Wales',
     imgUrl: 'assets/wales.png',
     isSelected: false,
-    personalAllowance: 12570,
+    personalAllowance: latestUKTaxThreshold,
+    nationalInsurancePercentage: latesUKNationalInsurance,
+    nationalInsuranceHigherPercentage: higherUKNationalInsurance,
+    nationalInsuranceUpperLimit: nationalInsuranceUpperLimit,
     brackets: [
       new TaxBracket(range: [0, 12570], percentage: 0),
       new TaxBracket(range: [12571, 37700], percentage: 0.20),
@@ -83,7 +99,7 @@ List<BreakdownMethod> breakdownMethods = [
 List<BreakdownPercentage> breakdownPercentages = [
   new BreakdownPercentage(method: "Tax", isSelected: false),
   new BreakdownPercentage(method: "Pension", isSelected: false),
-  new BreakdownPercentage(method: "NI Contr...", isSelected: false)
+  new BreakdownPercentage(method: "NI", isSelected: false)
 ];
 
 //list of available options for the settings dropdown

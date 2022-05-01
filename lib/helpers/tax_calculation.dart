@@ -1,4 +1,3 @@
-import 'package:tax_simplified/models/country.dart';
 import 'package:tax_simplified/models/tax_model.dart';
 
 void calculateTax(TaxModel model) {

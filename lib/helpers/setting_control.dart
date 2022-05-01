@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tax_simplified/constants.dart';
 import 'package:tax_simplified/helpers/toast.dart';
+import 'package:tax_simplified/models/tax_model.dart';
 
 //#region General Settings
 Future<void> saveSettings(niEnabled, pension) async {
@@ -77,8 +77,28 @@ Future<String> getNIDropdownVal() async {
   return prefs.getString("ni_dropdown_selection")!;
 }
 
-double applyNIReduction(double net, double gross, String taxLetter) {
-  //using the letter get the percentage associated to selection
-  return net;
+double applyNIReduction(TaxModel model) {
+  if (model.gross > model.selectedCountry.personalAllowance &&
+      model.gross <= model.selectedCountry.nationalInsuranceUpperLimit) {
+    //if within the range apply standard NI rate to taxable income
+    var taxable = model.userSalary - model.selectedCountry.personalAllowance;
+    var niToPay = taxable * model.selectedCountry.nationalInsurancePercentage;
+    return model.net - niToPay.ceil();
+  } else if (model.gross > model.selectedCountry.nationalInsuranceUpperLimit) {
+    var taxable = model.selectedCountry.nationalInsuranceUpperLimit -
+        model.selectedCountry.personalAllowance;
+    var standardNiToPay =
+        taxable * model.selectedCountry.nationalInsurancePercentage;
+    var aboveLimit =
+        model.userSalary - model.selectedCountry.nationalInsuranceUpperLimit;
+    var additionalNiToPay =
+        (aboveLimit * model.selectedCountry.nationalInsuranceHigherPercentage)
+            .ceil();
+    var totalNi = standardNiToPay + additionalNiToPay;
+
+    return model.net - totalNi;
+  } else {
+    return model.net;
+  }
 }
 //#endregion
